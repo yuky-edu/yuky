@@ -1,0 +1,9 @@
+[submodule "websocket"]
+	path = websocket
+	url = https://github.com/yuky-edu/websocket.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/yuky-edu/frontend.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/yuky-edu/backend.git
