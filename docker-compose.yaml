@@ -14,14 +14,28 @@ services:
       dockerfile: Dockerfile
     container_name: yuky-be
     restart: unless-stopped
-    working_dir: /var/www/
-    volumes:
-      - ./backend:/var/www
+    ports:
+      - "9000:9000"
     networks:
       - yuky
+    volumes:
+      - ./backend/.env:/var/www/.env
     depends_on:
       - db
-      - nginx
+
+  nginx:
+    image: nginx:alpine
+    container_name: yuky-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./docker-compose/nginx/conf.d:/etc/nginx/conf.d/
+    depends_on:
+      - db
+    networks:
+      - yuky
   
   frontend:
     build:
@@ -31,7 +45,7 @@ services:
     restart: unless-stopped
     working_dir: /frontend
     ports:
-      - "8080:8080"
+      - "3000:3000"
     volumes:
       - ./frontend:/frontend
     networks:
@@ -43,39 +57,23 @@ services:
       dockerfile: Dockerfile
     container_name: yuky-ws
     restart: unless-stopped
-    working_dir: /websocket
     ports:
-      - "3000:3000"
-    volumes:
-      - ./websocket:/websocket
-    networks:
-      - yuky
-
-  nginx:
-    image: nginx:alpine
-    container_name: yuky-nginx
-    restart: unless-stopped
-    ports:
-      - 8000:80
-    volumes:
-      - ./backend:/var/www
-      - ./docker-compose/nginx/conf.d:/etc/nginx/conf.d/
+      - "1000:1000"
     networks:
       - yuky
   
   db:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: yuky-db
     restart: unless-stopped
     environment: 
       MYSQL_DATABASE: yuky
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: secret
+      # Optional: You can remove these if not using non-root users
       MYSQL_USER: homestead
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      MYSQL_PASSWORD: secret
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - yuky_db_vol:/var/lib/mysql
     networks:
